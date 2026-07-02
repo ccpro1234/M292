@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baccarat Ultra AI Consensus Console</title>
+    <style>
+        :root {
+            --bg-gradient: radial-gradient(circle at 50% 30%, #0c101b 0%, #040508 100%);
+            --panel-bg: rgba(18, 23, 38, 0.7);
+            --panel-border: rgba(255, 255, 255, 0.04);
+            --panel-glow: 0 15px 35px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+            
+            --player-color: #1a73e8;
+            --banker-color: #d93025;
+            --tie-color: #1e8e3e;
+            --text-main: #f1f3f4;
+            --text-muted: #9aa0a6;
+            
+            --win-color: #2ece3c;
+            --lose-color: #e52d2d;
+            --grid-line-color: #080a0f; 
+            --neon-glow: #00f5ff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 860px;
+            background: var(--panel-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid var(--panel-border);
+            box-shadow: var(--panel-glow);
+            box-sizing: border-box;
+        }
+
+        h2 {
+            text-align: center;
+            margin: 0 0 15px 0;
+            color: #00f5ff;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 0 12px rgba(0, 245, 255, 0.35);
+        }
+
+        /* 🆕 แผงสรุปมติเอกฉันท์ AI สูงสุด (Consensus Engine) */
+        .consensus-panel {
+            background: rgba(8, 11, 18, 0.8);
+            border: 1px solid rgba(0, 245, 255, 0.15);
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .consensus-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: #00f5ff;
+            text-shadow: 0 0 8px rgba(0, 245, 255, 0.2);
+        }
+
+        .consensus-bar-wrapper {
+            width: 100%;
+            height: 8px;
+            background: #151a26;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.02);
+        }
+
+        .consensus-bar-fill {
+            height: 100%;
+            width: 50%; /* เริ่มต้นกึ่งกลางครึ่งๆ */
+            background: linear-gradient(90deg, var(--player-color) 0%, #42a5f5 45%, #ff5252 55%, var(--banker-color) 100%);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        /* มาร์กเกอร์ชี้เป้าคะแนนโหวตปัจจุบัน */
+        .consensus-pointer {
+            position: absolute;
+            top: -2px;
+            left: 50%;
+            width: 4px;
+            height: 12px;
+            background: #fff;
+            box-shadow: 0 0 8px #fff;
+            border-radius: 2px;
+            transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* แผงปุ่มกดคอนโซล */
+        .input-panel {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr) 95px 95px;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            border: none;
+            padding: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.15s ease;
+        }
+        .btn:active { transform: scale(0.96); }
+        .btn-p { background: linear-gradient(135deg, #1e88e5, #1565c0); box-shadow: 0 3px 10px rgba(26,115,232,0.3); }
+        .btn-b { background: linear-gradient(135deg, #e53935, #c62828); box-shadow: 0 3px 10px rgba(217,48,37,0.3); }
+        .btn-t { background: linear-gradient(135deg, #43a047, #2e7d32); box-shadow: 0 3px 10px rgba(30,142,62,0.3); }
+        .btn-sys { background: #2c3240; color: #b0b5c2; font-size: 12px; border: 1px solid rgba(255,255,255,0.03); }
+        .btn-clear { background: #7b1fa2; font-size: 12px; }
+
+        /* แผงแสดงสถิติตัวเลข */
+        .stats-dashboard {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            padding: 8px;
+            text-align: center;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 11px;
+            background: rgba(10, 14, 23, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        .stat-box.p-box { border-bottom: 3px solid var(--player-color); }
+        .stat-box.b-box { border-bottom: 3px solid var(--banker-color); }
+        .stat-box.t-box { border-bottom: 3px solid var(--tie-color); }
+        .stat-box.total-box { border-bottom: 3px solid #00f5ff; }
+
+        .stat-val {
+            font-size: 20px;
+            font-weight: 700;
+            margin-top: 3px;
+            color: #fff;
+            font-family: monospace;
+        }
+
+        .section-title {
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #00f5ff;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        /* ตาราง Bead Road 3D Sphere */
+        .bead-road-container {
+            overflow-x: auto;
+            background: #05070a;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.04);
+            box-shadow: inset 0 3px 10px rgba(0,0,0,0.8);
+            margin-bottom: 20px;
+        }
+
+        .bead-road-grid {
+            display: grid;
+            grid-template-rows: repeat(6, 26px); 
+            grid-auto-columns: 26px;             
+            grid-auto-flow: column;              
+            gap: 2px;
+        }
+
+        .bead-cell {
+            background: #0a0d14;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bead-dot {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 10px;
+            color: white;
+            background-image: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.4) 0%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.6) 100%);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* แผงโครงสร้าง 10 สายสูตร */
+        .lines-container {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .line-row {
+            display: flex;
+            align-items: center;
+            background: rgba(16, 22, 36, 0.4);
+            padding: 5px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.01);
+            border-left: 5px solid #22293a;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .line-info {
+            width: 170px;
+            min-width: 170px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-right: 5px;
+        }
+
+        .line-name {
+            font-weight: 700;
+            font-size: 11px;
+            color: #8c93a3;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ป้ายกำกับสายทำเงินหลัก (Hot Line Tag) */
+        .hot-tag {
+            font-size: 9px;
+            background: #ff5722;
+            color: #fff;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-weight: 800;
+            display: none;
+            box-shadow: 0 0 5px #ff5722;
+        }
+
+        /* 🆕 กล่องอัปเกรดเปอร์เซ็นต์ + ตัวแทงล่วงหน้า + ตัวนับสตรีคในตัวเดียว */
+        .line-winrate {
+            font-size: 11px;
+            color: #fff;
+            background: #1f273b;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-family: monospace;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            min-width: 90px;
+            box-sizing: border-box;
+        }
+
+        .next-move-tag { font-weight: 900; }
+        .tag-move-p { color: #3b9cff; }
+        .tag-move-b { color: #ff4d4d; }
+
+        /* ตัวเลขแจ้งเตือนสตรีคถูก/ผิดต่อเนื่อง */
+        .streak-badge {
+            font-size: 9px;
+            padding: 1px 3px;
+            border-radius: 2px;
+            font-weight: 800;
+            color: #fff;
+            display: none;
+        }
+        .streak-win { background-color: #00c853; }
+        .streak-lose { background-color: #ff3d00; }
+
+        /* มทริกซ์สากลแนบชิดไร้รอยแยก */
+        .matrix-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0; 
+            flex-grow: 1;
+            margin-left: 15px;
+            background-color: var(--grid-line-color);
+            border: 1px solid var(--grid-line-color); 
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .grid-13 {
+            display: grid;
+            grid-template-columns: repeat(13, 1fr);
+            grid-template-rows: 24px; 
+            gap: 0;
+        }
+
+        .cell-result {
+            width: 100%;
+            height: 100%; 
+            box-sizing: border-box;
+            border: 1px solid var(--grid-line-color); 
+        }
+
+        .cell-win { background-color: var(--win-color); box-shadow: inset 0 0 5px rgba(0,0,0,0.15); }
+        .cell-lose { background-color: var(--lose-color); box-shadow: inset 0 0 5px rgba(0,0,0,0.15); }
+        .cell-empty { background-color: #121522; }
+
+        /* 🔥 ระบบเอฟเฟกต์กระพริบโครม่าสำหรับกลุ่มอันดับสูงสุด Top 3 Hot Lines 🔥 */
+        .highest-winrate-flash {
+            border-left-color: var(--neon-glow) !important;
+            background: linear-gradient(90deg, rgba(0, 245, 255, 0.08) 0%, rgba(16, 22, 36, 0.4) 100%);
+            box-shadow: 0 0 12px rgba(0, 245, 255, 0.12);
+            animation: chroma-breath 0.8s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .highest-winrate-flash .line-winrate {
+            color: #000;
+            background-color: var(--neon-glow);
+            font-weight: 800;
+            box-shadow: 0 0 10px var(--neon-glow);
+        }
+
+        .highest-winrate-flash .next-move-tag,
+        .highest-winrate-flash .streak-badge {
+            color: #000 !important;
+            text-shadow: none;
+        }
+
+        .highest-winrate-flash .hot-tag { display: inline-block; }
+        .highest-winrate-flash .line-name { color: #fff; text-shadow: 0 0 6px var(--neon-glow); }
+
+        @keyframes chroma-breath {
+            0% { border-left-color: rgba(0, 245, 255, 0.4); }
+            100% { border-left-color: var(--neon-glow); }
+        }
+
+
+        /* ===== LOGIN SYSTEM ===== */
+.login-overlay{
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(circle at center, #0b1220 0%, #000 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+}
+
+.login-box{
+    width: 100%;
+    max-width: 420px;
+    background: rgba(18, 23, 38, 0.92);
+    border: 1px solid rgba(0,245,255,0.15);
+    border-radius: 18px;
+    padding: 30px;
+    box-sizing: border-box;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+}
+
+.login-title{
+    text-align: center;
+    color: #00f5ff;
+    font-size: 24px;
+    font-weight: 900;
+    margin-bottom: 25px;
+    letter-spacing: 2px;
+    text-shadow: 0 0 12px rgba(0,245,255,0.35);
+}
+
+.login-input{
+    width: 100%;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(8, 11, 18, 0.8);
+    color: #fff;
+    font-size: 14px;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.login-input:focus{
+    border-color: #00f5ff;
+    box-shadow: 0 0 8px rgba(0,245,255,0.2);
+}
+
+.login-show{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: #cfd8dc;
+}
+
+.login-btn{
+    width: 100%;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 800;
+    color: #fff;
+    background: linear-gradient(135deg, #00bcd4, #0097a7);
+    letter-spacing: 1px;
+}
+
+.login-error{
+    margin-top: 12px;
+    color: #ff5252;
+    text-align: center;
+    font-size: 13px;
+    min-height: 18px;
+}
+
+/* ซ่อนโปรแกรมหลักจนกว่าจะ Login */
+#app{
+    display: none;
+}
+/* วันหมดอายุ */
+.expiry-box{
+    margin-bottom: 15px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(255, 193, 7, 0.08);
+    border: 1px solid rgba(255, 193, 7, 0.25);
+    color: #ffd54f;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+/* ===== FLOAT BET BOX ===== */
+
+.predict-float{
+    position:fixed;
+    top:15px;
+    right:15px;
+
+    width:180px;
+
+    background:rgba(8,11,18,0.95);
+    border:1px solid rgba(0,245,255,0.25);
+
+    border-radius:12px;
+
+    padding:12px;
+
+    z-index:99999;
+
+    backdrop-filter:blur(20px);
+
+    box-shadow:
+    0 10px 30px rgba(0,0,0,.5),
+    0 0 15px rgba(0,245,255,.15);
+}
+
+.predict-title{
+    font-size:10px;
+    color:#00f5ff;
+    font-weight:800;
+    letter-spacing:1px;
+}
+
+.predict-move{
+    font-size:22px;
+    font-weight:900;
+    margin-top:4px;
+}
+
+.predict-percent{
+    margin-top:4px;
+    font-size:13px;
+    color:#fff;
+    font-weight:700;
+}
+
+.predict-player{
+    color:#42a5f5;
+}
+
+.predict-banker{
+    color:#ff5252;
+}
+        @media (max-width: 650px) {
+            .input-panel { grid-template-columns: repeat(3, 1fr); }
+            .line-row { flex-direction: column; align-items: stretch; padding: 8px; }
+            .matrix-container { margin-left: 0; margin-top: 6px; }
+            .line-info { width: 100%; margin-bottom: 5px; }
+        }
+        
+    </style>
+</head>
+<body>
+
+    <!-- ===== LOGIN OVERLAY ===== -->
+<div class="login-overlay" id="loginOverlay">
+    <div class="login-box">
+        <div class="login-title">🔐 LOGIN SYSTEM</div>
+
+        <input type="text"
+               id="loginUser"
+               class="login-input"
+               placeholder="Username"
+               autocomplete="off">
+
+        <input type="password"
+               id="loginPass"
+               class="login-input"
+               placeholder="Password"
+               onkeydown="if(event.key==='Enter') doLogin();">
+
+        <label class="login-show">
+            <input type="checkbox" onchange="togglePassword(this)">
+            แสดงรหัสผ่าน
+        </label>
+
+        <button class="login-btn" onclick="doLogin()">LOGIN</button>
+
+        <div class="login-error" id="loginError"></div>
+    </div>
+</div>
+
+<!-- ===== APP START ===== -->
+<div id="app">
+    <div class="predict-float">
+
+   <div class="predict-title">
+    ผลสรุป AI ขั้นสุดท้าย (จับเค้าเปลี่ยน)
+</div>
+
+    <div
+        id="predictMove"
+        class="predict-move">
+        WAIT
+    </div>
+
+    <div
+        id="predictPercent"
+        class="predict-percent">
+        --
+    </div>
+
+</div>
+
+    <!-- วันหมดอายุ -->
+    <div class="expiry-box" id="expiryBox"></div>
+
+
+<div class="container">
+    <h2>♣ BACCARAT ULTRA AI CONSENSUS CONSOLE ♣</h2>
+
+
+    <div class="consensus-panel">
+        <div class="consensus-header">
+            <span>ANALYSIS ENGINE</span>
+            <span id="ai-suggestion" style="color: #fff; font-size: 14px;">WAITING DATA...</span>
+        </div>
+        <div class="consensus-bar-wrapper">
+            <div class="consensus-pointer" id="ai-pointer"></div>
+        </div>
+    </div>
+<div class="consensus-panel">
+
+    <div class="consensus-header">
+
+        <span>
+            LIVE MEMORY ENGINE
+        </span>
+
+        <span id="memory-output">
+            WAITING...
+        </span>
+
+    </div>
+
+</div>
+    <!-- แผงปุ่มกดประวัติ -->
+    <div class="input-panel">
+        <button class="btn btn-p" onclick="record('P')">PLAYER</button>
+        <button class="btn btn-t" onclick="record('T')">TIE</button>
+        <button class="btn btn-b" onclick="record('B')">BANKER</button>
+        <button class="btn btn-sys" onclick="undo()">↩ UNDO</button>
+        <button class="btn btn-clear" onclick="clearBoard()">🗑 CLEAR</button>
+    </div>
+
+    <!-- สถิติตัวนับรอบภาพรวม -->
+    <div class="stats-dashboard">
+        <div class="stat-box p-box">PLAYER (P)<div class="stat-val" id="p-count">0</div></div>
+        <div class="stat-box b-box">BANKER (B)<div class="stat-val" id="b-count">0</div></div>
+        <div class="stat-box t-box">TIE (T)<div class="stat-val" id="t-count">0</div></div>
+        <div class="stat-box total-box">TOTAL<div class="stat-val" id="total-count">0</div></div>
+    </div>
+
+    <!-- ส่วนตารางหลัก Bead Road -->
+    <div class="section-title">● BEAD ROAD CODELOG (6-ROW ADVANCED SPHERE)</div>
+    <div class="bead-road-container">
+        <div class="bead-road-grid" id="bead-road-board"></div>
+    </div>
+
+    <!-- ส่วนบอร์ด 10 สายสูตร -->
+    <div class="section-title">📊 10-LINE MULTI-FILTER MATRIX (SEAMLESS INFINITE)</div>
+    <div class="lines-container" id="lines-box"></div>
+</div>
+</div>
+<script>
+    let realHistory = [];
+    const minBeadCells = 168; 
+    // =====================
+// LIVE MEMORY ENGINE
+// =====================
+
+const MEMORY_DEPTH = 8;
+const MEMORY_MIN_MATCH = 2;
+
+let memoryResult = {
+    nextMove:null,
+    confidence:0,
+    pCount:0,
+    bCount:0
+};
+
+    const formulaPatterns = [
+        ['P', 'B'], ['P', 'P', 'B', 'B'], ['B', 'B', 'B', 'P', 'P', 'P'], ['P'], ['B'], 
+        ['P', 'P', 'B', 'P', 'B', 'B'], ['B', 'P', 'P', 'B'], ['P', 'B', 'B'], ['B', 'B', 'P'], 
+        ['P', 'P', 'P', 'P', 'B', 'B', 'B', 'B'] 
+    ];
+
+    renderDashboard();
+
+    function calculateLiveMemory(){
+
+    memoryResult = {
+        nextMove:null,
+        confidence:0,
+        pCount:0,
+        bCount:0
+    };
+
+    const cleanHistory =
+        realHistory.filter(x => x !== "T");
+
+    if(cleanHistory.length < MEMORY_DEPTH + 1)
+        return;
+
+    const currentPattern =
+        cleanHistory
+        .slice(-MEMORY_DEPTH)
+        .join("");
+
+    let pHits = 0;
+    let bHits = 0;
+
+    for(let i=0;i<cleanHistory.length-MEMORY_DEPTH;i++){
+
+        const segment =
+            cleanHistory
+            .slice(i,i+MEMORY_DEPTH)
+            .join("");
+
+        if(segment===currentPattern){
+
+            const next =
+                cleanHistory[i+MEMORY_DEPTH];
+
+            if(next==="P") pHits++;
+            if(next==="B") bHits++;
+
+        }
+    }
+
+    const totalHits =
+        pHits+bHits;
+
+    if(totalHits < MEMORY_MIN_MATCH)
+        return;
+
+    const pRate =
+        (pHits/totalHits)*100;
+
+    const bRate =
+        (bHits/totalHits)*100;
+
+    memoryResult.pCount=pHits;
+    memoryResult.bCount=bHits;
+
+    if(pRate>bRate){
+
+        memoryResult.nextMove="P";
+        memoryResult.confidence=pRate;
+
+    }else{
+
+        memoryResult.nextMove="B";
+        memoryResult.confidence=bRate;
+
+    }
+}
+    function record(result) {
+        realHistory.push(result);
+        renderDashboard();
+    }
+
+    function undo() {
+        if (realHistory.length > 0) {
+            realHistory.pop();
+            renderDashboard();
+        }
+    }
+
+    function clearBoard() {
+        if (realHistory.length > 0 && confirm("ต้องการล้างประวัติสถิติทั้งหมดในขอนนี้ใช่หรือไม่?")) {
+            realHistory = [];
+
+memoryResult = {
+    nextMove:null,
+    confidence:0,
+    pCount:0,
+    bCount:0
+};
+            renderDashboard();
+        }
+    }
+
+    function renderDashboard() {
+        const totalRounds = realHistory.length;
+        const pCount = realHistory.filter(x => x==='P').length;
+        const bCount = realHistory.filter(x => x==='B').length;
+        const tCount = realHistory.filter(x => x==='T').length;
+
+        document.getElementById('total-count').innerText = totalRounds;
+        document.getElementById('p-count').innerText = pCount;
+        document.getElementById('b-count').innerText = bCount;
+        document.getElementById('t-count').innerText = tCount;
+
+        // 1. เรนเดอร์ตาราง Bead Road
+        const beadBoard = document.getElementById('bead-road-board');
+        beadBoard.innerHTML = ''; 
+        let beadCellsNeeded = Math.max(minBeadCells, Math.ceil(totalRounds / 6) * 6);
+
+        for (let i = 0; i < beadCellsNeeded; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'bead-cell';
+            if (i < totalRounds) {
+                const dot = document.createElement('div');
+                dot.className = 'bead-dot';
+                if (realHistory[i] === 'P') { dot.style.backgroundColor = 'var(--player-color)'; dot.innerText = 'P'; }
+                else if (realHistory[i] === 'B') { dot.style.backgroundColor = 'var(--banker-color)'; dot.innerText = 'B'; }
+                else if (realHistory[i] === 'T') { dot.style.backgroundColor = 'var(--tie-color)'; dot.innerText = 'T'; }
+                cell.appendChild(dot);
+            }
+            beadBoard.appendChild(cell);
+        }
+
+        // Variables สำหรับระบบโหวตวิเคราะห์ฉันทามติ AI Consensus
+       let pVotes = 0;
+let bVotes = 0;
+
+calculateLiveMemory();
+
+        // 2. ประมวลผลและเตรียมข้อมูลโครงสร้างสูตรทั้ง 10 สาย
+        let linesData = [];
+
+        for (let i = 0; i < 10; i++) {
+            let correctCount = 0;
+            let totalEvaluated = 0;
+            let currentLineResults = []; 
+            let pattern = formulaPatterns[i];
+
+            for (let r = 0; r < totalRounds; r++) {
+                let actual = realHistory[r];
+                if (actual === 'T') continue; 
+
+                let predicted = pattern[totalEvaluated % pattern.length];
+                totalEvaluated++;
+
+                if (actual === predicted) {
+                    currentLineResults.push('✓');
+                    correctCount++;
+                } else {
+                    currentLineResults.push('✗');
+                }
+            }
+
+            // ====================================
+// RECENCY ENGINE V1
+// ล่าสุดมีน้ำหนักมากกว่าอดีต
+// ====================================
+
+// Winrate ทั้งหมด
+let fullWinrate =
+    totalEvaluated > 0
+    ? (correctCount / totalEvaluated) * 100
+    : 0;
+
+// Winrate ล่าสุด 20 ไม้
+const recentResults =
+    currentLineResults.slice(-20);
+
+const recentCorrect =
+    recentResults.filter(
+        x => x === '✓'
+    ).length;
+
+const recentTotal =
+    recentResults.length;
+
+let recentWinrate =
+    recentTotal > 0
+    ? (recentCorrect / recentTotal) * 100
+    : fullWinrate;
+
+// สูตรถ่วงน้ำหนัก
+
+   let winrate =
+    (recentWinrate * 0.70) +
+    (fullWinrate * 0.30);
+            let nextPredictedMove = pattern[totalEvaluated % pattern.length];
+
+            // 🆕 คำนวณระบบสตรีค (Streak Counter) นับถอยหลังหาจุดต่อเนื่องล่าสุด
+            let streakType = "";
+            let streakCount = 0;
+            if (currentLineResults.length > 0) {
+                let lastRes = currentLineResults[currentLineResults.length - 1];
+                streakType = lastRes === '✓' ? 'win' : 'lose';
+                for (let k = currentLineResults.length - 1; k >= 0; k--) {
+                    if (currentLineResults[k] === lastRes) {
+                        streakCount++;
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            // รวมคะแนนโหวตสำหรับตาถัดไป (เฉพาะสายที่เริ่มมีการลงบันทึกข้อมูลประวัติแล้ว)
+            if (totalEvaluated > 0) {
+                if (nextPredictedMove === 'P') pVotes += winrate; // ให้น้ำหนักตามอัตราชนะสะสมของสายนั้น (Weighted Vote)
+                if (nextPredictedMove === 'B') bVotes += winrate;
+            }
+
+            let subRows = [];
+            let chunkCount = Math.ceil(currentLineResults.length / 13);
+            if (chunkCount === 0) chunkCount = 1; 
+
+            for (let j = 0; j < chunkCount; j++) {
+                let start = j * 13;
+                let chunk = currentLineResults.slice(start, start + 13);
+                subRows.push(chunk);
+            }
+
+            linesData.push({
+                index: i,
+                winrate: winrate,
+                nextMove: nextPredictedMove,
+                streakType: streakType,
+                streakCount: streakCount,
+                subRows: subRows,
+                evaluatedCount: totalEvaluated
+            });
+        }
+
+        // 🆕 มติเอกฉันท์ AI Consensus Engine ประมวลผลขั้นสุดท้ายด้านบนสุด
+        const suggestionLabel = document.getElementById('ai-suggestion');
+        const pointer = document.getElementById('ai-pointer');
+
+        const memoryOutput =
+document.getElementById(
+    "memory-output"
+);
+if(memoryResult.nextMove){
+
+    memoryOutput.innerHTML =
+
+        `${memoryResult.nextMove}
+        (${memoryResult.confidence.toFixed(0)}%)
+        [P:${memoryResult.pCount}
+        B:${memoryResult.bCount}]`;
+
+}else{
+
+    memoryOutput.innerHTML =
+        "NO MEMORY MATCH";
+
+}
+        if (totalRounds > 0 && (pVotes > 0 || bVotes > 0)) {
+            let voteTotal = pVotes + bVotes;
+            let pPercent = (pVotes / voteTotal) * 100;
+            let bPercent = (bVotes / voteTotal) * 100;
+            
+            // ขยับมาร์กเกอร์ Pointer ตามสัดส่วนคะแนนโหวตสะสม
+            pointer.style.left = `${pPercent}%`;
+
+     if (pPercent > 55) {
+
+
+    suggestionLabel.innerHTML =
+    `AI RECOMMEND:
+    <span style="color:#42a5f5;font-weight:900;">
+    PLAYER
+    </span>
+    (CONFIDENCE ${pPercent.toFixed(0)}%)`;
+
+
+    document.getElementById("predictMove").innerHTML =
+    '<span class="predict-player">PLAYER</span>';
+
+
+    document.getElementById("predictPercent").innerHTML =
+    pPercent.toFixed(0)+"%";
+
+
+}
+else if (bPercent > 55) {
+
+
+    suggestionLabel.innerHTML =
+    `AI RECOMMEND:
+    <span style="color:#ff5252;font-weight:900;">
+    BANKER
+    </span>
+    (CONFIDENCE ${bPercent.toFixed(0)}%)`;
+
+
+    document.getElementById("predictMove").innerHTML =
+    '<span class="predict-banker">BANKER</span>';
+
+
+    document.getElementById("predictPercent").innerHTML =
+    bPercent.toFixed(0)+"%";
+
+
+}
+else {
+
+
+    suggestionLabel.innerHTML =
+    `AI STATUS:
+    <span style="color:#aaa;">
+    SIDEWAYS (แนะนำให้ผ่านก่อน)
+    </span>`;
+
+
+    document.getElementById("predictMove").innerHTML =
+    '<span class="predict-pass">PASS</span>';
+
+
+    document.getElementById("predictPercent").innerHTML =
+    "0%";
+
+}
+
+
+} else {
+
+
+    suggestionLabel.innerText =
+    "WAITING DATA (ป้อนประวัติตาแรกเพื่อเปิดระบบวิเคราะห์)...";
+
+
+    pointer.style.left="50%";
+
+
+    document.getElementById("predictMove").innerHTML =
+    "WAITING";
+
+
+    document.getElementById("predictPercent").innerHTML =
+    "0%";
+
+}
+// =====================
+// LIVE MEMORY VOTE
+// =====================
+
+if(memoryResult.nextMove==="P"){
+
+    pVotes +=
+        memoryResult.confidence * 2;
+
+}
+
+if(memoryResult.nextMove==="B"){
+
+    bVotes +=
+        memoryResult.confidence * 2;
+
+}
+        // ค้นหาเกณฑ์เพื่อคัดกรองจัดกลุ่ม Top 3 Hot Lines
+        let sortedWinrates = linesData
+            .filter(ld => ld.evaluatedCount > 0)
+            .map(ld => ld.winrate)
+            .sort((a, b) => b - a);
+        
+        // ดึงค่า % สูงสุด 3 อันดับแรกมาเป็นเกณฑ์คัดกรองไฟกระพริบ
+        let hotThreshold = sortedWinrates.length > 0 ? sortedWinrates[Math.min(2, sortedWinrates.length - 1)] : 999;
+
+        // 3. สั่งเรนเดอร์โครงสร้างหน้าจอ 10 สายสูตร
+        const linesBox = document.getElementById('lines-box');
+        linesBox.innerHTML = ''; 
+
+        linesData.forEach(ld => {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'line-row';
+            
+            // เปิดระบบออร่าและป้ายไฟล้อมรอบ หากติดกลุ่มอันดับความแม่นยำ Top 3 สูงสุด
+            if (ld.evaluatedCount > 0 && ld.winrate >= hotThreshold && ld.winrate > 0) {
+                rowDiv.className += ' highest-winrate-flash';
+            }
+
+            // แปลงป้ายทิศทางตัวแทงล่วงหน้าในช่อง %
+            let moveTag = '';
+            if (ld.evaluatedCount > 0) {
+                if (ld.nextMove === 'P') moveTag = `<span class="next-move-tag tag-move-p">[P]</span>`;
+                if (ld.nextMove === 'B') moveTag = `<span class="next-move-tag tag-move-b">[B]</span>`;
+            } else {
+                moveTag = `<span class="next-move-tag">-</span>`;
+            }
+
+            // แปลงป้ายตัวบอกระดับสตรีคถูกผิดต่อเนื่อง
+            let streakTag = '';
+            if (ld.streakCount > 0) {
+                let sign = ld.streakType === 'win' ? '+' : '-';
+                let cls = ld.streakType === 'win' ? 'streak-win' : 'streak-lose';
+                streakTag = `<span class="streak-badge ${cls}" style="display:inline-block;">${sign}${ld.streakCount}</span>`;
+            }
+
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'line-info';
+            infoDiv.innerHTML = `
+                <div class="line-name"><span class="hot-tag">🔥 HOT</span>LINE ${ld.index + 1}</div>
+                <div class="line-winrate">${ld.winrate.toFixed(0)}%${moveTag}${streakTag}</div>
+            `;
+            rowDiv.appendChild(infoDiv);
+
+            const matrixContainer = document.createElement('div');
+            matrixContainer.className = 'matrix-container';
+
+            ld.subRows.forEach(chunk => {
+                const gridDiv = document.createElement('div');
+                gridDiv.className = 'grid-13';
+
+                for (let c = 0; c < 13; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell-result';
+
+                    if (c < chunk.length) {
+                        let resSymbol = chunk[c];
+                        if (resSymbol === '✓') cell.className += ' cell-win';
+                        if (resSymbol === '✗') cell.className += ' cell-lose';
+                    } else {
+                        cell.className += ' cell-empty'; 
+                    }
+                    gridDiv.appendChild(cell);
+                }
+                matrixContainer.appendChild(gridDiv);
+            });
+
+            rowDiv.appendChild(matrixContainer);
+            linesBox.appendChild(rowDiv);
+        });
+    }
+
+   // ===== LOGIN CONFIG =====
+
+
+// วันหมดอายุ: 13 กรกฎาคม พ.ศ.2569 (ค.ศ. 2026)
+const EXPIRY_DATE = new Date(2026, 6, 13, 23, 59, 59);
+
+// เริ่มระบบเมื่อโหลดหน้าเว็บ
+window.addEventListener("load", initLoginSystem);
+
+function initLoginSystem() {
+    const now = new Date();
+
+    // ตรวจสอบวันหมดอายุ
+    if (now > EXPIRY_DATE) {
+        alert("License หมดอายุแล้ว");
+
+        document.body.innerHTML = `
+            <div style="
+                display:flex;
+                justify-content:center;
+                align-items:center;
+                min-height:100vh;
+                background:#000;
+                color:#ff5252;
+                font-size:30px;
+                font-weight:900;
+                text-align:center;
+                font-family:Segoe UI;
+            ">
+                LICENSE EXPIRED<br>
+                หมดอายุวันที่ 13 กรกฎาคม 2569
+            </div>
+        `;
+        return;
+    }
+
+    // บังคับ Login ใหม่ทุกครั้ง
+    localStorage.removeItem("baccarat_login");
+
+    // เปิดกล่อง Login
+    showLogin();
+}
+
+
+function showLogin() {
+    document.getElementById("loginOverlay").style.display = "flex";
+    document.getElementById("app").style.display = "none";
+}
+
+function showApp() {
+    document.getElementById("loginOverlay").style.display = "none";
+    document.getElementById("app").style.display = "block";
+
+    // แสดงวันหมดอายุในหน้าโปรแกรมหลัก
+    document.getElementById("expiryBox").innerHTML =
+        "⏳ LICENSE EXPIRES : 13 กรกฎาคม พ.ศ. 2569";
+}
+
+async function doLogin(){
+
+    const userInput = document.getElementById("loginUser");
+    const passInput = document.getElementById("loginPass");
+    const error = document.getElementById("loginError");
+
+    error.textContent = "กำลังตรวจสอบ License...";
+
+    try{
+
+        const res = await fetch(
+            "https://morning-block-55bb.havanalanna.workers.dev/?user="
+            + encodeURIComponent(userInput.value)
+            + "&pass="
+            + encodeURIComponent(passInput.value)
+        );
+
+        const data = await res.json();
+
+        if(data.status==="ok"){
+
+            localStorage.setItem("baccarat_login","ok");
+
+            error.textContent="";
+
+            showApp();
+
+            // 🔒 ตรวจ License ทุก 30 วินาที
+            const user=userInput.value;
+            const pass=passInput.value;
+
+            setInterval(async()=>{
+
+                try{
+
+                    const r=await fetch(
+                        "https://morning-block-55bb.havanalanna.workers.dev/?user="
+                        +encodeURIComponent(user)
+                        +"&pass="
+                        +encodeURIComponent(pass)
+                    );
+
+                    const j=await r.json();
+
+                    if(j.status!=="ok"){
+
+                        alert("⛔ License ถูกปิดใช้งาน");
+
+                        localStorage.removeItem("baccarat_login");
+
+                        location.reload();
+
+                    }
+
+                }catch(e){
+
+                    console.log("License check error");
+
+                }
+
+            },30000);
+
+        }else{
+
+            error.textContent="User หรือ Password ไม่ถูกต้อง";
+
+        }
+
+    }catch(e){
+
+        error.textContent="ไม่สามารถเชื่อมต่อ License Server";
+
+    }
+
+}
+
+function togglePassword(cb) {
+    document.getElementById("loginPass").type =
+        cb.checked ? "text" : "password";
+}
+
+function logout() {
+    localStorage.removeItem("baccarat_login");
+    location.reload();
+}
+
+</script>
+
+</body>
+</html>
