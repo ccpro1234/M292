@@ -1105,8 +1105,8 @@ if(memoryResult.nextMove==="B"){
    // ===== LOGIN CONFIG =====
 
 
-// วันหมดอายุ: 27 กรกฎาคม พ.ศ.2569 (ค.ศ. 2026)
-const EXPIRY_DATE = new Date(2026, 6, 27, 23, 59, 59);
+// วันหมดอายุ: 8 สิงหาคม พ.ศ.2569 (ค.ศ. 2026)
+const EXPIRY_DATE = new Date(2026, 7, 08, 23, 59, 59);
 
 // เริ่มระบบเมื่อโหลดหน้าเว็บ
 window.addEventListener("load", initLoginSystem);
@@ -1132,7 +1132,7 @@ function initLoginSystem() {
                 font-family:Segoe UI;
             ">
                 LICENSE EXPIRED<br>
-                หมดอายุวันที่ 27 กรกฎาคม 2569
+                หมดอายุวันที่ 8 ส.ค. 2569
             </div>
         `;
         return;
@@ -1157,7 +1157,7 @@ function showApp() {
 
     // แสดงวันหมดอายุในหน้าโปรแกรมหลัก
     document.getElementById("expiryBox").innerHTML =
-        "⏳ LICENSE EXPIRES : 27 กรกฎาคม พ.ศ. 2569";
+        "⏳ LICENSE EXPIRES : 8 ส.ค. พ.ศ. 2569";
 }
 
 async function doLogin(){
